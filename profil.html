@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - Zura Panel</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        /* --- CSS Variabel TEMA DEEP SPACE --- */
+        :root {
+            --bg-dark-blue: #020617;  
+            --bg-deep-purple: #1e1b4b; 
+            --accent-purple: #8b5cf6;  
+            --accent-blue: #3b82f6;    
+            --accent-green: #10b981;
+            --accent-yellow: #fbc02d;
+            --text-light: #f8fafc;     
+            --text-muted: #94a3b8;     
+            
+            /* Glassmorphism Gelap */
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(139, 92, 246, 0.3);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            --glow-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        
+        body { 
+            background-color: var(--bg-dark-blue);
+            background-image: radial-gradient(ellipse at bottom, var(--bg-deep-purple) 0%, var(--bg-dark-blue) 100%);
+            color: var(--text-light);
+            display: flex; flex-direction: column; min-height: 100vh;
+            overflow-x: hidden; position: relative;
+        }
+
+        /* --- SPACE BACKGROUND EFFECTS --- */
+        .space-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: -1; overflow: hidden;
+        }
+
+        .stars-twinkling {
+            position: absolute; width: 2px; height: 2px; background: transparent;
+            box-shadow: 10vw 15vh #fff, 30vw 45vh #fff, 80vw 10vh #fff, 
+                        55vw 60vh #fff, 90vw 80vh #fff, 15vw 85vh #fff,
+                        40vw 20vh #ddd, 70vw 30vh #ccc, 20vw 70vh #eee;
+            animation: twinkle-light 4s infinite ease-in-out alternate;
+        }
+        .stars-twinkling::after {
+            content: ''; position: absolute; top: 50vh; left: 30vw; width: 3px; height: 3px; background: transparent;
+             box-shadow: 5vw 5vh #fff, 25vw 35vh #ccc, 75vw 5vh #fff, 
+                        50vw 55vh #eee, 85vw 75vh #fff, 10vw 80vh #ddd;
+             animation: twinkle-light 6s infinite ease-in-out alternate-reverse;
+        }
+        @keyframes twinkle-light { 0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+        .planet { position: absolute; border-radius: 50%; animation: float-planet 10s ease-in-out infinite alternate; }
+        .planet-1 { top: 15%; left: 10%; width: 120px; height: 120px; background: radial-gradient(circle at 30% 30%, var(--accent-purple), var(--bg-deep-purple) 60%, #000 100%); box-shadow: 0 0 30px rgba(139, 92, 246, 0.2); opacity: 0.8; }
+        .planet-2 { bottom: 20%; right: 15%; width: 80px; height: 80px; background: radial-gradient(circle at 30% 30%, var(--accent-blue), var(--bg-dark-blue) 60%, #000 100%); opacity: 0.6; animation-delay: -5s; animation-duration: 12s; }
+        @keyframes float-planet { 0% { transform: translateY(0px); } 100% { transform: translateY(-20px); } }
+
+        /* ========================================================================= */
+        /* --- SISTEM NAVIGASI (SIDEBAR DI DESKTOP, NAVBAR 1 BARIS DI MOBILE) ---    */
+        /* ========================================================================= */
+        
+        .main-nav { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            z-index: 100;
+        }
+
+        /* --- MODE DESKTOP/PC --- */
+        @media (min-width: 769px) {
+            .main-nav {
+                position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
+                display: flex; flex-direction: column; gap: 5px; padding: 25px 20px; 
+                border-right: 1px solid var(--glass-border); overflow-y: auto;
+            }
+
+            .sidebar-brand {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                margin-bottom: 25px; text-align: center; width: 100%;
+            }
+            .brand-logo {
+                width: 75px; height: 75px; border-radius: 50%; object-fit: cover;
+                border: 2px solid var(--accent-blue); box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); margin-bottom: 10px;
+            }
+            .brand-title {
+                font-size: 1.5rem; font-weight: 800; letter-spacing: 1px;
+                background: linear-gradient(45deg, #3b82f6, #ffffff);
+                -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2;
+            }
+            .brand-subtitle { font-size: 0.8rem; color: var(--text-muted); text-transform: capitalize; margin-top: 2px; }
+            .nav-label.main-menu { margin-top: 5px; margin-bottom: 10px; }
+
+            .nav-item {
+                display: flex; align-items: center; gap: 15px; padding: 14px 20px;
+                color: var(--text-muted); text-decoration: none; border-radius: 12px;
+                font-weight: 600; font-size: 0.95rem; transition: 0.3s;
+            }
+            .nav-item > i.fas { font-size: 1.2rem; width: 25px; text-align: center; }
+            .nav-item:hover { background: rgba(139, 92, 246, 0.1); color: var(--text-light); }
+            .nav-item.active { 
+                background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); 
+                border-left: 4px solid var(--accent-purple); border-radius: 8px 12px 12px 8px;
+            }
+
+            .nav-other-wrapper { display: flex; flex-direction: column; width: 100%; gap: 5px; }
+            .mobile-other-btn { display: none !important; }
+            .nav-label {
+                font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;
+                margin-top: 25px; margin-bottom: 5px; padding-left: 10px; font-weight: 800; opacity: 0.7;
+            }
+            .other-menu-items { display: flex; flex-direction: column; width: 100%; gap: 5px; }
+            
+            /* --- UKURAN DESKTOP PERSIS SEPERTI DASHBOARD --- */
+            main { margin-left: 260px; padding: 40px 2%; max-width: calc(100% - 260px); flex: 1; }
+            footer { margin-left: 260px; }
+        }
+
+        /* --- MODE MOBILE/HP --- */
+        @media (max-width: 768px) {
+            .desktop-only { display: none !important; }
+
+            .main-nav {
+                position: fixed; top: 15px; left: 0; right: 0; width: 96%; margin: 0 auto;
+                border-radius: 20px; border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
+                display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between;
+                padding: 10px 4px; gap: 2px;
+            }
+
+            .nav-item {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                padding: 8px 2px; color: var(--text-muted); text-decoration: none;
+                font-weight: 600; font-size: clamp(9px, 2.5vw, 13px); flex: 1;
+                white-space: nowrap; border-radius: 12px; gap: 4px; transition: 0.3s;
+            }
+            .nav-item > i.fas { font-size: clamp(14px, 4vw, 18px); }
+            
+            .nav-item.active { color: var(--accent-purple); background: transparent; }
+            .nav-item:hover { color: var(--text-light); background: rgba(139, 92, 246, 0.1); }
+
+            .nav-other-wrapper { position: relative; flex: 1; display: flex; }
+            .nav-label { display: none !important; }
+            
+            .mobile-other-btn { width: 100%; cursor: pointer; }
+            .mobile-other-btn i.fa-chevron-down { font-size: 0.7rem; transition: transform 0.3s; }
+            
+            .nav-other-wrapper:hover .other-menu-items { opacity: 1; visibility: visible; margin-top: 10px; }
+            .nav-other-wrapper:hover .mobile-other-btn i.fa-chevron-down { transform: rotate(180deg); color: var(--accent-purple); }
+
+            .other-menu-items {
+                position: absolute; top: 100%; right: 0; margin-top: 15px;
+                background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+                border: 1px solid var(--glass-border); border-radius: 15px; padding: 10px;
+                box-shadow: var(--glass-shadow); display: flex; flex-direction: column; gap: 5px;
+                min-width: 140px; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 1000;
+            }
+            .other-menu-items::before {
+                content: ''; position: absolute; top: -6px; right: 25px;
+                border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 6px solid var(--glass-border);
+            }
+            
+            .other-menu-items .sub-item {
+                flex-direction: row; justify-content: flex-start; align-items: center; gap: 10px; padding: 10px 15px;
+                font-size: 0.9rem; border-radius: 10px; flex: unset; width: 100%;
+            }
+            .other-menu-items .sub-item > i.fas { font-size: 1rem; width: 20px; text-align: center; }
+            .other-menu-items .sub-item:hover {
+                background: rgba(139, 92, 246, 0.15); border-left: 3px solid var(--accent-purple); padding-left: 18px;
+            }
+
+            /* --- UKURAN MOBILE PERSIS SEPERTI DASHBOARD --- */
+            main { margin-left: 0; padding: 110px 2% 40px; max-width: 100%; flex: 1; }
+            footer { margin-left: 0; }
+        }
+
+        /* --- BASE STYLING MAIN SEPERTI DI DASHBOARD --- */
+        main { display: flex; flex-direction: column; gap: 25px; z-index: 1; align-items: center; }
+
+        /* Wrapper tambahan agar Form Profil rapi di tengah dan tidak melebar sampai pinggir layar PC */
+        .profile-wrapper { width: 100%; max-width: 750px; display: flex; flex-direction: column; gap: 25px; }
+
+        /* --- KARTU PROFIL --- */
+        .zura-card {
+            background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border); border-radius: 20px; padding: 30px;
+            box-shadow: var(--glass-shadow); position: relative; overflow: hidden; width: 100%;
+        }
+
+        /* --- PROFILE HEADER & GRID INFO --- */
+        .profile-header { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .profile-img-box {
+            position: relative; width: 110px; height: 110px; border-radius: 50%; padding: 4px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            box-shadow: var(--glow-shadow);
+        }
+        .profile-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--bg-dark-blue); background-color: var(--bg-deep-purple); }
+
+        .info-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; width: 100%;
+            background: rgba(0, 0, 0, 0.4); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .info-item { display: flex; flex-direction: column; gap: 4px; text-align: left; }
+        .info-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+        .info-value { font-size: 0.95rem; color: var(--text-light); font-weight: 600; word-break: break-all; }
+        .info-value.telegram-text { color: var(--accent-blue); text-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+
+        .status-container { grid-column: span 2; text-align: center; margin-top: 5px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1); }
+        .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .status-active { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid var(--accent-green); box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.2); }
+        .status-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+        .status-banned { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+
+        /* --- FORM STYLE --- */
+        .card-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; color: var(--text-light); }
+        .card-title i { color: var(--accent-purple); text-shadow: 0 0 10px var(--accent-purple); }
+
+        .input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+        .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+        .input-wrapper { position: relative; }
+        .input-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        
+        .zura-input {
+            width: 100%; padding: 12px 15px 12px 40px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1); background-color: rgba(0,0,0,0.4);
+            color: var(--text-light); outline: none; transition: 0.3s; font-size: 0.95rem;
+        }
+        .zura-input:focus { border-color: var(--accent-purple); box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); background: rgba(0,0,0,0.6); }
+        .zura-input[readonly] { background-color: rgba(0,0,0,0.2); color: var(--text-muted); cursor: not-allowed; }
+
+        .btn-action {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); color: white;
+            border: none; padding: 14px 20px; border-radius: 12px; font-size: 1rem;
+            font-weight: 700; cursor: pointer; transition: 0.3s; width: 100%;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); filter: brightness(1.2); }
+
+        .btn-fake { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); box-shadow: none; color: var(--text-muted); cursor: default; }
+        .btn-fake:hover { transform: none; box-shadow: none; filter: none; }
+
+        .alert { padding: 12px; border-radius: 10px; font-size: 0.9rem; text-align: center; margin-bottom: 20px; font-weight: 600; border: 1px solid transparent; }
+        .alert-success { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.5); }
+        .alert-error { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.5); }
+        .alert-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.5); }
+
+        footer { background: var(--glass-bg); backdrop-filter: blur(15px); padding: 25px; text-align: center; border-top: 1px solid var(--glass-border); margin-top: auto; z-index: 1;}
+        .footer-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px; }
+        .footer-links a { color: var(--accent-blue); text-decoration: none; font-size: 0.9rem; margin: 0 5px; transition: 0.3s;}
+        .footer-links a:hover { color: var(--accent-purple); }
+        .footer-links span { color: var(--glass-border); }
+
+        @media (max-width: 500px) {
+            .info-grid { grid-template-columns: 1fr 1fr; gap: 10px 5px; padding: 15px; }
+            .info-value { font-size: 0.8rem; word-break: break-all; }
+            .info-label { font-size: 0.65rem; }
+            .status-container { grid-column: span 2; }
+            .zura-card { padding: 20px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="space-container">
+        <div class="stars-twinkling"></div>
+        <div class="planet planet-1"></div>
+        <div class="planet planet-2"></div>
+    </div>
+
+    <nav class="main-nav" id="mainNav">
+        
+        <div class="sidebar-brand desktop-only">
+            <img src="../../assets/logo.png" alt="ZuraPanel Logo" class="brand-logo" onerror="this.src='https://x.zurastore.my.id/assets/logo.jpg'">
+            <div class="brand-title">ZuraPanel</div>
+            <div class="brand-subtitle">get a free number</div>
+        </div>
+
+        <div class="nav-label desktop-only main-menu">MAIN MENU</div>
+
+        <a href="../../dashboardz" class="nav-item">
+            <i class="fas fa-home"></i> <span>Dashboard</span>
+        </a>
+        <a href="../getnum" class="nav-item">
+            <i class="fas fa-mobile-screen-button"></i> <span>Get Num</span>
+        </a>
+        <a href="../consol" class="nav-item">
+            <i class="fas fa-terminal"></i> <span>Consol</span>
+        </a>
+
+        <div class="nav-other-wrapper">
+            <div class="nav-item mobile-other-btn active">
+                <i class="fas fa-grip"></i> 
+                <span style="display: flex; align-items: center; gap: 4px;">Other <i class="fas fa-chevron-down"></i></span>
+            </div>
+            
+            <div class="nav-label desktop-only">OTHER</div>
+
+            <div class="other-menu-items">
+                <a href="." class="nav-item sub-item active" style="color: var(--accent-purple);">
+                    <i class="fas fa-user-circle"></i> <span>Profil</span>
+                </a>
+                <a href="../payment" class="nav-item sub-item">
+                    <i class="fas fa-wallet"></i> <span>Payment</span>
+                </a>
+                <a href="../../logout" class="nav-item sub-item" style="color: #ef4444;">
+                    <i class="fas fa-sign-out-alt"></i> <span>Log out</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- LANGSUNG PAKAI MAIN AGAR PERSIS DENGAN DASHBOARD -->
+    <main>
+        
+        <!-- WRAPPER TAMBAHAN AGAR KONTEN PROFIL TETAP DI TENGAH (TIDAK MELEBAR FULL) -->
+        <div class="profile-wrapper">
+            
+            <div class="zura-card">
+                <div class="profile-header">
+                    <div class="profile-img-box">
+                        <img src="../../assets/logo.png" alt="Profile" class="profile-img" onerror="this.src='https://x.zurastore.my.id/assets/logo.jpg'">
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">ID User</span>
+                            <span class="info-value">Z_R10641</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">Email Address</span>
+                            <span class="info-value">rohanazam76@gmail.com</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">Full Name</span>
+                            <span class="info-value">MD Rohan</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">Telegram</span>
+                            <span class="info-value telegram-text">@mdrohan123123</span>
+                        </div>
+
+                        <div class="status-container">
+                            <span class="info-label" style="display:block; margin-bottom: 8px;">Status Akun</span>
+                            <div class="status-badge status-active">
+                                <i class="fas fa-circle" style="font-size: 0.5rem; margin-right: 4px; vertical-align: middle;"></i> 
+                                active                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="zura-card">
+                <div class="card-title">
+                    <i class="fas fa-user-pen"></i> Edit Profil & Keamanan
+                </div>
+                
+                
+                <form action="" method="POST">
+                    <input type="hidden" name="action" value="update_profile">
+                    
+                    <div class="input-group">
+                        <label>Nama Lengkap Baru (Opsional):</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-id-card"></i>
+                            <input type="text" name="new_name" class="zura-input" value="MD Rohan" placeholder="Ubah nama lengkap Anda">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Password Baru (Opsional):</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-key"></i>
+                            <input type="password" name="new_pass" class="zura-input" placeholder="Isi jika ingin ganti sandi">
+                        </div>
+                    </div>
+
+                    <div class="input-group" style="margin-top: 25px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 15px;">
+                        <label style="color: var(--accent-purple);">Verifikasi Password Saat Ini *</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-shield-halved" style="color: var(--accent-purple);"></i>
+                            <input type="password" name="current_pass" class="zura-input" placeholder="Wajib diisi untuk menyimpan" required>
+                        </div>
+                        <small style="color: var(--text-muted); font-size: 0.75rem;">Masukkan password lama Anda untuk menerapkan perubahan.</small>
+                    </div>
+
+                    <button type="submit" class="btn-action" style="margin-top: 15px;">
+                        <i class="fas fa-save"></i> Simpan Perubahan
+                    </button>
+                </form>
+            </div>
+
+            <div class="zura-card">
+                <div class="card-title">
+                    <i class="fas fa-code"></i> API Keys
+                </div>
+
+                <div class="input-group">
+                    <label>Key Aktif Anda:</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-link"></i>
+                        <input type="text" class="zura-input" value="" placeholder="Belum ada API Keys" readonly id="apiKeyField">
+                    </div>
+                </div>
+
+                <button type="button" class="btn-action btn-fake" style="margin-top: 10px;">
+                    <i class="fas fa-rotate"></i> Buat API Keys Baru
+                </button>
+            </div>
+
+        </div> <!-- END profile-wrapper -->
+    </main>
+
+    <footer>
+        <div class="footer-text">
+            &copy; 2026 ZuraStore - All rights reserved.
+        </div>
+        <div class="footer-links">
+            <a href="#">Support</a><span>|</span>
+            <a href="#">Contact</a><span>|</span>
+            <a href="#">FAQ</a>
+        </div>
+    </footer>
+
+</body>
+</html>
