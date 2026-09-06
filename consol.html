@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Console - Zura Panel</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* --- CSS Variabel TEMA DEEP SPACE --- */
+        :root {
+            --bg-dark-blue: #020617;  
+            --bg-deep-purple: #1e1b4b; 
+            --accent-purple: #8b5cf6;  
+            --accent-blue: #3b82f6;    
+            --accent-green: #10b981;
+            --accent-yellow: #fbc02d;
+            --text-light: #f8fafc;     
+            --text-muted: #94a3b8;     
+            
+            /* Glassmorphism Gelap */
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(139, 92, 246, 0.3);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            --glow-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+            --glow-yellow: rgba(251, 192, 45, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        
+        body { 
+            background-color: var(--bg-dark-blue);
+            background-image: radial-gradient(ellipse at bottom, var(--bg-deep-purple) 0%, var(--bg-dark-blue) 100%);
+            color: var(--text-light);
+            display: flex; flex-direction: column; min-height: 100vh;
+            overflow-x: hidden; position: relative;
+        }
+
+        /* --- SPACE BACKGROUND EFFECTS --- */
+        .space-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: -1; overflow: hidden;
+        }
+
+        .stars-twinkling {
+            position: absolute; width: 2px; height: 2px; background: transparent;
+            box-shadow: 10vw 15vh #fff, 30vw 45vh #fff, 80vw 10vh #fff, 
+                        55vw 60vh #fff, 90vw 80vh #fff, 15vw 85vh #fff,
+                        40vw 20vh #ddd, 70vw 30vh #ccc, 20vw 70vh #eee;
+            animation: twinkle-light 4s infinite ease-in-out alternate;
+        }
+        .stars-twinkling::after {
+            content: ''; position: absolute; top: 50vh; left: 30vw; width: 3px; height: 3px; background: transparent;
+             box-shadow: 5vw 5vh #fff, 25vw 35vh #ccc, 75vw 5vh #fff, 
+                        50vw 55vh #eee, 85vw 75vh #fff, 10vw 80vh #ddd;
+             animation: twinkle-light 6s infinite ease-in-out alternate-reverse;
+        }
+        @keyframes twinkle-light { 0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+        .planet { position: absolute; border-radius: 50%; animation: float-planet 10s ease-in-out infinite alternate; }
+        .planet-1 { top: 15%; left: 10%; width: 120px; height: 120px; background: radial-gradient(circle at 30% 30%, var(--accent-purple), var(--bg-deep-purple) 60%, #000 100%); box-shadow: 0 0 30px rgba(139, 92, 246, 0.2); opacity: 0.8; }
+        .planet-2 { bottom: 20%; right: 15%; width: 80px; height: 80px; background: radial-gradient(circle at 30% 30%, var(--accent-blue), var(--bg-dark-blue) 60%, #000 100%); opacity: 0.6; animation-delay: -5s; animation-duration: 12s; }
+        @keyframes float-planet { 0% { transform: translateY(0px); } 100% { transform: translateY(-20px); } }
+
+        /* ========================================================================= */
+        /* --- SISTEM NAVIGASI (SIDEBAR DI DESKTOP, NAVBAR 1 BARIS DI MOBILE) ---    */
+        /* ========================================================================= */
+        
+        .main-nav { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            z-index: 100;
+        }
+
+        /* --- MODE DESKTOP/PC --- */
+        @media (min-width: 769px) {
+            .main-nav {
+                position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
+                display: flex; flex-direction: column; gap: 5px; padding: 25px 20px; 
+                border-right: 1px solid var(--glass-border); overflow-y: auto;
+            }
+
+            .sidebar-brand {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                margin-bottom: 25px; text-align: center; width: 100%;
+            }
+            .brand-logo {
+                width: 75px; height: 75px; border-radius: 50%; object-fit: cover;
+                border: 2px solid var(--accent-blue); box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); margin-bottom: 10px;
+            }
+            .brand-title {
+                font-size: 1.5rem; font-weight: 800; letter-spacing: 1px;
+                background: linear-gradient(45deg, #3b82f6, #ffffff);
+                -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2;
+            }
+            .brand-subtitle { font-size: 0.8rem; color: var(--text-muted); text-transform: capitalize; margin-top: 2px; }
+            .nav-label.main-menu { margin-top: 5px; margin-bottom: 10px; }
+
+            .nav-item {
+                display: flex; align-items: center; gap: 15px; padding: 14px 20px;
+                color: var(--text-muted); text-decoration: none; border-radius: 12px;
+                font-weight: 600; font-size: 0.95rem; transition: 0.3s;
+            }
+            .nav-item > i.fas { font-size: 1.2rem; width: 25px; text-align: center; }
+            .nav-item:hover { background: rgba(139, 92, 246, 0.1); color: var(--text-light); }
+            .nav-item.active { 
+                background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); 
+                border-left: 4px solid var(--accent-purple); border-radius: 8px 12px 12px 8px;
+            }
+
+            .nav-other-wrapper { display: flex; flex-direction: column; width: 100%; gap: 5px; }
+            .mobile-other-btn { display: none !important; }
+            .nav-label {
+                font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;
+                margin-top: 25px; margin-bottom: 5px; padding-left: 10px; font-weight: 800; opacity: 0.7;
+            }
+            .other-menu-items { display: flex; flex-direction: column; width: 100%; gap: 5px; }
+            
+            .main-container { margin-left: 260px; padding: 40px 2%; max-width: calc(100% - 260px); flex: 1; display: flex; flex-direction: column; gap: 20px; }
+            footer { margin-left: 260px; }
+        }
+
+        /* --- MODE MOBILE/HP --- */
+        @media (max-width: 768px) {
+            .desktop-only { display: none !important; }
+
+            .main-nav {
+                position: fixed; top: 15px; left: 0; right: 0; width: 96%; margin: 0 auto;
+                border-radius: 20px; border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
+                display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between;
+                padding: 10px 4px; gap: 2px;
+            }
+
+            .nav-item {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                padding: 8px 2px; color: var(--text-muted); text-decoration: none;
+                font-weight: 600; font-size: clamp(9px, 2.5vw, 13px); flex: 1;
+                white-space: nowrap; border-radius: 12px; gap: 4px; transition: 0.3s;
+            }
+            .nav-item > i.fas { font-size: clamp(14px, 4vw, 18px); }
+            
+            .nav-item.active { color: var(--accent-purple); background: transparent; }
+            .nav-item:hover { color: var(--text-light); background: rgba(139, 92, 246, 0.1); }
+
+            .nav-other-wrapper { position: relative; flex: 1; display: flex; }
+            .nav-label { display: none !important; }
+            
+            .mobile-other-btn { width: 100%; cursor: pointer; }
+            .mobile-other-btn i.fa-chevron-down { font-size: 0.7rem; transition: transform 0.3s; }
+            
+            .nav-other-wrapper:hover .other-menu-items { opacity: 1; visibility: visible; margin-top: 10px; }
+            .nav-other-wrapper:hover .mobile-other-btn i.fa-chevron-down { transform: rotate(180deg); color: var(--accent-purple); }
+
+            .other-menu-items {
+                position: absolute; top: 100%; right: 0; margin-top: 15px;
+                background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+                border: 1px solid var(--glass-border); border-radius: 15px; padding: 10px;
+                box-shadow: var(--glass-shadow); display: flex; flex-direction: column; gap: 5px;
+                min-width: 140px; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 1000;
+            }
+            .other-menu-items::before {
+                content: ''; position: absolute; top: -6px; right: 25px;
+                border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 6px solid var(--glass-border);
+            }
+            
+            .other-menu-items .sub-item {
+                flex-direction: row; justify-content: flex-start; align-items: center; gap: 10px; padding: 10px 15px;
+                font-size: 0.9rem; border-radius: 10px; flex: unset; width: 100%;
+            }
+            .other-menu-items .sub-item > i.fas { font-size: 1rem; width: 20px; text-align: center; }
+            .other-menu-items .sub-item:hover {
+                background: rgba(139, 92, 246, 0.15); border-left: 3px solid var(--accent-purple); padding-left: 18px;
+            }
+
+            .main-container { margin-left: 0; padding: 110px 2% 40px; max-width: 100%; flex: 1; display: flex; flex-direction: column; gap: 20px; z-index: 1; }
+            footer { margin-left: 0; }
+        }
+
+        /* --- NOTIFIKASI TOAST --- */
+        #toast { position: fixed; bottom: 20px; right: 20px; background: var(--accent-purple); color: white; padding: 12px 20px; border-radius: 8px; font-weight: bold; box-shadow: 0 0 20px rgba(139, 92, 246, 0.6); transform: translateY(100px); opacity: 0; transition: 0.4s; z-index: 9999; border: 1px solid var(--glass-border); display: flex; align-items: center; gap: 10px;}
+        #toast.show { transform: translateY(0); opacity: 1; }
+
+        /* --- TOP APPS CHART CARD --- */
+        .chart-card {
+            background: var(--glass-bg); backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px; box-shadow: var(--glass-shadow); flex-shrink: 0; 
+        }
+        .chart-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .chart-accent { width: 4px; height: 20px; background-color: var(--accent-yellow); border-radius: 2px; box-shadow: 0 0 10px var(--glow-yellow); }
+        .chart-title { font-size: 1.1rem; font-weight: bold; color: var(--text-light); text-shadow: 0 0 10px var(--glow-yellow); text-transform: uppercase;}
+        .chart-container { position: relative; height: 160px; width: 100%; filter: drop-shadow(0px 0px 8px rgba(251, 192, 45, 0.3)); }
+
+        /* --- TOP RANGE TABLE --- */
+        .top-range-container {
+            background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border); border-radius: 20px;
+            padding: 25px; box-shadow: var(--glass-shadow); width: 100%;
+        }
+
+        .tr-table { display: flex; flex-direction: column; gap: 8px; margin-top: 10px;}
+        .tr-header { 
+            display: flex; font-size: 0.8rem; text-transform: uppercase; 
+            color: var(--text-muted); font-weight: bold; padding: 0 15px 8px 15px; 
+            border-bottom: 1px solid rgba(255,255,255,0.1); 
+        }
+        .tr-body { display: flex; flex-direction: column; gap: 8px; }
+        
+        .tr-row { 
+            display: flex; background: rgba(0,0,0,0.3); padding: 12px 15px; 
+            border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); align-items: center; transition: 0.2s;
+        }
+        .tr-row:hover { background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.3); transform: translateX(5px); }
+        
+        .tr-col { flex: 1; font-size: 0.95rem; }
+        .tr-col.range { color: var(--text-light); font-family: 'Consolas', monospace; font-weight: bold; letter-spacing: 0.5px; cursor: pointer; transition: 0.3s; }
+        .tr-col.range:hover { color: var(--accent-purple); }
+        .tr-col.service { color: var(--accent-blue); font-weight: bold; text-shadow: 0 0 5px rgba(59, 130, 246, 0.4);}
+        .tr-col.count { text-align: right; color: var(--accent-green); font-weight: 900; }
+        .align-right { text-align: right; }
+
+        /* --- CONSOLE WRAPPER --- */
+        .console-wrapper {
+            background: var(--glass-bg); backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border); border-radius: 20px; display: flex; flex-direction: column;
+            height: 600px; overflow: hidden; box-shadow: var(--glass-shadow);
+        }
+
+        .console-header { display: flex; align-items: center; padding: 15px 20px; gap: 15px; background: rgba(0,0,0,0.4); border-bottom: 1px solid var(--glass-border); }
+        .traffic-lights { display: flex; gap: 8px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 8px rgba(255,255,255,0.1); }
+        .dot.red { background-color: #ef4444; }
+        .dot.yellow { background-color: #f59e0b; }
+        .dot.green { background-color: var(--accent-green); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+        .console-title { font-size: 1rem; font-weight: bold; color: var(--accent-blue); text-shadow: 0 0 10px rgba(59, 130, 246, 0.6); display: flex; align-items: center; gap: 10px; text-transform: uppercase; }
+
+        .console-toolbar { display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--glass-border); gap: 10px; background: rgba(0,0,0,0.2); }
+        
+        .search-box, .timer-box { background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); border-radius: 12px; padding: 8px 15px; display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--text-muted); }
+        
+        .search-box { flex-grow: 1; transition: 0.3s; width: 100%;}
+        .search-box:focus-within { box-shadow: 0 0 10px var(--glow-shadow); border-color: var(--accent-purple); color: var(--accent-purple); }
+        .search-box input { background: transparent; border: none; color: var(--text-light); font-family: inherit; width: 100%; outline: none; }
+        .search-box input::placeholder { color: var(--text-muted); }
+        
+        .timer-box { white-space: nowrap; flex-shrink: 0; }
+        .timer-label { display: inline; } 
+        .timer-count { color: var(--accent-green); font-weight: bold; text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
+
+        .console-body { flex-grow: 1; padding: 15px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; font-family: 'Consolas', monospace; }
+        .console-body::-webkit-scrollbar { width: 6px; }
+        .console-body::-webkit-scrollbar-track { background: transparent; }
+        .console-body::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.4); border-radius: 10px; }
+
+        .log-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; display: flex; gap: 15px; transition: transform 0.2s, box-shadow 0.2s; }
+        .log-card:hover { transform: translateY(-2px); background: rgba(0,0,0,0.6); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .log-detail { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+        .log-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        
+        .badge { background-color: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; font-family: 'Segoe UI', sans-serif;}
+        .meta-text { color: var(--text-muted); font-size: 0.75rem; font-family: 'Segoe UI', sans-serif;}
+        
+        .log-service { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+        .service-name { color: var(--accent-blue); font-weight: bold; text-shadow: 0 0 8px rgba(59, 130, 246, 0.6); font-family: 'Segoe UI', sans-serif;}
+        .separator { color: var(--text-muted); }
+        
+        /* Modifikasi Range agar bisa diklik */
+        .service-number { color: var(--text-light); letter-spacing: 0.5px; cursor: pointer; transition: color 0.3s; display: flex; align-items: center; gap: 6px; }
+        .service-number:hover { color: var(--accent-purple); }
+        .service-number i { font-size: 0.75rem; opacity: 0.7; }
+        
+        .log-msg { display: flex; align-items: flex-start; gap: 10px; font-size: 0.85rem; line-height: 1.5; background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.02); }
+        .msg-text { color: var(--text-light); word-break: break-word; }
+
+        .console-footer { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background-color: rgba(0,0,0,0.4); border-top: 1px solid var(--glass-border); font-size: 0.75rem; color: var(--text-muted); flex-shrink: 0; font-family: 'Segoe UI', sans-serif; }
+
+        /* --- Footer Resmi Panel --- */
+        footer { background: var(--glass-bg); backdrop-filter: blur(15px); padding: 25px; text-align: center; border-top: 1px solid var(--glass-border); margin-top: auto; z-index: 1;}
+        .footer-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px; }
+        .footer-links a { color: var(--accent-blue); text-decoration: none; font-size: 0.9rem; margin: 0 5px; transition: 0.3s;}
+        .footer-links a:hover { color: var(--accent-purple); }
+        .footer-links span { color: var(--glass-border); }
+        
+        /* RESPONSIVE KHUSUS MOBILE */
+        @media (max-width: 600px) {
+            .console-wrapper { height: 500px; } 
+            .timer-label { display: none; }
+            .search-box { padding: 8px 10px; }
+            .timer-box { padding: 8px 10px; font-size: 0.8rem; }
+            .tr-col { font-size: 0.85rem; }
+            .chart-card { padding: 15px; }
+            .top-range-container { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="space-container">
+        <div class="stars-twinkling"></div>
+        <div class="planet planet-1"></div>
+        <div class="planet planet-2"></div>
+    </div>
+
+    <nav class="main-nav" id="mainNav">
+        
+        <div class="sidebar-brand desktop-only">
+            <img src="../../assets/logo.jpg" alt="ZuraPanel Logo" class="brand-logo" onerror="this.src='https://x.zurastore.my.id/assets/logo.jpg'">
+            <div class="brand-title">ZuraPanel</div>
+            <div class="brand-subtitle">get a free number</div>
+        </div>
+
+        <div class="nav-label desktop-only main-menu">MAIN MENU</div>
+
+        <a href="../../dashboardz" class="nav-item">
+            <i class="fas fa-home"></i> <span>Dashboard</span>
+        </a>
+        <a href="../getnum" class="nav-item">
+            <i class="fas fa-mobile-screen-button"></i> <span>Get Num</span>
+        </a>
+        <a href="." class="nav-item active">
+            <i class="fas fa-terminal"></i> <span>Consol</span>
+        </a>
+
+        <div class="nav-other-wrapper">
+            <div class="nav-item mobile-other-btn">
+                <i class="fas fa-grip"></i> 
+                <span style="display: flex; align-items: center; gap: 4px;">Other <i class="fas fa-chevron-down"></i></span>
+            </div>
+            
+            <div class="nav-label desktop-only">OTHER</div>
+
+            <div class="other-menu-items">
+                <a href="../profil" class="nav-item sub-item">
+                    <i class="fas fa-user-circle"></i> <span>Profil</span>
+                </a>
+                <a href="../payment" class="nav-item sub-item">
+                    <i class="fas fa-wallet"></i> <span>Payment</span>
+                </a>
+                <a href="../../logout" class="nav-item sub-item" style="color: #ef4444;">
+                    <i class="fas fa-sign-out-alt"></i> <span>Log out</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div id="toast"><i class="fas fa-check-circle"></i> <span>Berhasil disalin!</span></div>
+
+    <main class="main-container">
+        
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-accent"></div>
+                <div class="chart-title">Top Services Hit</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="topAppsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="top-range-container">
+            <div class="chart-header" style="margin-bottom: 5px;">
+                <i class="fas fa-fire" style="color: #ef4444; font-size: 1.2rem; text-shadow: 0 0 10px rgba(239, 68, 68, 0.6);"></i>
+                <div class="chart-title" style="text-transform: uppercase;">Top Servers Last 30 Minutes </div>
+            </div>
+            <div class="tr-table">
+                <div class="tr-header">
+                    <div class="tr-col">Range</div>
+                    <div class="tr-col">Service</div>
+                    <div class="tr-col align-right">Jumlah SMS</div>
+                </div>
+                <div id="topRangeList" class="tr-body">
+                    <div style="text-align:center; padding: 10px; color: var(--text-muted);">Menganalisis riwayat SMS Server...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="console-wrapper">
+            <div class="console-header">
+                <div class="traffic-lights">
+                    <div class="dot red"></div>
+                    <div class="dot yellow"></div>
+                    <div class="dot green"></div>
+                </div>
+                <div class="console-title">
+                    <i class="fa-solid fa-terminal"></i> Global Console
+                </div>
+            </div>
+
+            <div class="console-toolbar">
+                <div class="search-box">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Filter logs berdasarkan Pesan atau Range..." oninput="filterLogs()">
+                </div>
+                <div class="timer-box">
+                    <span class="timer-label">Next update: </span>&nbsp;<span class="timer-count" id="countdownTimer">11 s</span> &nbsp;<i class="fa-solid fa-rotate"></i>
+                </div>
+            </div>
+
+            <div class="console-body" id="logContainer">
+                <div style="text-align:center; color: var(--text-muted); padding: 20px;">Menunggu sinkronisasi data API...</div>
+            </div>
+
+            <div class="console-footer">
+                <div id="lastUpdatedText">Last Updated: --:--:--</div>
+                <div id="logsCountText">Logs: 0 (Max 50)</div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="footer-text">&copy; 2026 ZuraStore - All rights reserved.</div>
+        <div class="footer-links">
+            <a href="#">Support</a><span>|</span><a href="#">Contact</a><span>|</span><a href="#">FAQ</a>
+        </div>
+    </footer>
+
+    <script>
+        let allLogs = []; 
+        let countdown = 11;
+        let timerInterval;
+        let topAppsChart;
+
+        const neonColors = ['#8b5cf6', '#3b82f6']; 
+
+        // --- SISTEM COPY KE CLIPBOARD & TOAST ---
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.querySelector('span').innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function copyToClipboard(text) {
+            const tempInput = document.createElement("textarea");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            
+            showToast("Range disalin: " + text);
+        }
+
+        // --- INISIALISASI CHART.JS ---
+        function initChart() {
+            const ctx = document.getElementById('topAppsChart').getContext('2d');
+            topAppsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [], 
+                    datasets: [{
+                        label: 'Hits',
+                        data: [], 
+                        backgroundColor: '#fbc02d', 
+                        borderColor: '#f9a825', 
+                        borderWidth: 1,
+                        borderRadius: 6, 
+                        barThickness: 25 
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }, 
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8', font: { family: 'Segoe UI', size: 11 } },
+                            border: { display: false }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)', tickLength: 0 },
+                            ticks: { color: '#94a3b8', font: { family: 'Segoe UI', size: 11 }, stepSize: 10 },
+                            border: { display: false },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function escapeHTML(str) {
+            return str ? str.toString().replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag])
+            ) : '';
+        }
+
+        // --- LOGIKA MENEBAK SERVICE BERDASARKAN ISI PESAN (KOREKSI API) ---
+        function getRealService(sid, message) {
+            let msgStr = (message || '').toLowerCase();
+            
+            // Jika pesan mengandung kata instagram, paksa ubah service jadi INSTAGRAM
+            if (msgStr.includes('instagram') || msgStr.includes('ig')) return 'INSTAGRAM';
+            
+            // Logika tebakan tambahan jika diperlukan
+            if (msgStr.includes('whatsapp') || msgStr.includes('wa.me')) return 'WHATSAPP';
+            if (msgStr.includes('tiktok')) return 'TIKTOK';
+            if (msgStr.includes('telegram')) return 'TELEGRAM';
+
+            // Jika tidak ada kata kunci yang cocok, kembalikan ke SID aslinya
+            return (sid || 'UNKNOWN').toUpperCase();
+        }
+
+        // --- FETCH TOP RANGES DARI MYSQL (API INTERNAL 1) ---
+        async function fetchTopSMSStats() {
+            try {
+                const res = await fetch('?get_top_ranges=1&t=' + new Date().getTime());
+                const data = await res.json();
+                
+                const container = document.getElementById('topRangeList');
+                container.innerHTML = '';
+                
+                if(!data.top_list || data.top_list.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; padding: 10px; color: var(--text-muted);">Belum ada data SMS masuk dalam 30 menit terakhir.</div>';
+                    return;
+                }
+                
+                data.top_list.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'tr-row';
+                    // Menambahkan aksi copy ke tabel range ini juga
+                    row.innerHTML = `
+                        <div class="tr-col range" onclick="copyToClipboard('${escapeHTML(item.range)}')" title="Salin Range">${escapeHTML(item.range)}</div>
+                        <div class="tr-col service">${escapeHTML(item.service)}</div>
+                        <div class="tr-col count">${item.count}x</div>
+                    `;
+                    container.appendChild(row);
+                });
+            } catch (e) {
+                console.log("Gagal memuat Top SMS Stats SQL...");
+            }
+        }
+
+        // --- FETCH LIVE CONSOLE DARI STEX (API INTERNAL 2) ---
+        async function fetchConsoleData() {
+            try {
+                const response = await fetch('?ajax=get_stex_console&t=' + new Date().getTime());
+                if (!response.ok) return;
+                
+                const json = await response.json();
+                
+                if (json && json.meta && json.meta.code === 200 && json.data && json.data.hits) {
+                    allLogs = json.data.hits;
+                    
+                    // Render Logs (Batasi 50 Log untuk display)
+                    let displayLogs = allLogs.slice(0, 50);
+                    renderConsoleLogs(displayLogs);
+                    document.getElementById('logsCountText').innerText = `Logs: ${displayLogs.length} (Max 50)`;
+                    
+                    const now = new Date();
+                    document.getElementById('lastUpdatedText').innerText = `Last Updated: ${now.toLocaleTimeString('id-ID', { hour12: false })}`;
+
+                    // UPDATE GRAFIK TOP APPS DARI LOG API STEX
+                    updateTopAppsChart(allLogs);
+                }
+            } catch (error) {
+                console.log("Gagal memuat Log API STEX...");
+            }
+        }
+
+        // --- MENGHITUNG & MENGUPDATE GRAFIK ---
+        function updateTopAppsChart(logsArray) {
+            let appCounts = {};
+            
+            // Loop data log untuk menjumlahkan nama Service
+            logsArray.forEach(log => {
+                // Terapkan fungsi pengecekan nama service di sini agar Grafik juga terkoreksi
+                let realSid = getRealService(log.sid, log.message);
+                appCounts[realSid] = (appCounts[realSid] || 0) + 1;
+            });
+            
+            // Konversi Object ke Array lalu Sortir Descending
+            let sortedApps = Object.keys(appCounts).map(k => {
+                return { name: k, count: appCounts[k] };
+            });
+            sortedApps.sort((a, b) => b.count - a.count);
+            
+            // Ambil 6 teratas untuk masuk ke grafik
+            let top6Apps = sortedApps.slice(0, 6);
+            
+            // Masukkan data baru ke variabel Chart.js
+            topAppsChart.data.labels = top6Apps.map(app => app.name);
+            topAppsChart.data.datasets[0].data = top6Apps.map(app => app.count);
+            topAppsChart.update();
+        }
+
+        // --- RENDER LOG HTML ---
+        function renderConsoleLogs(dataArray) {
+            const container = document.getElementById('logContainer');
+            container.innerHTML = '';
+
+            if (dataArray.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color: var(--text-muted); padding: 20px;">Menunggu log masuk...</div>';
+                return;
+            }
+
+            dataArray.forEach(item => {
+                // Konversi Timestamp Milidetik (contoh: 1782683729164) menjadi Jam:Menit:Detik
+                let dateObj = new Date(item.time);
+                let timePart = dateObj.toLocaleTimeString('id-ID', { hour12: false });
+
+                // Evaluasi nama Service yang sesungguhnya berdasarkan isi pesan
+                let displaySid = getRealService(item.sid, item.message);
+
+                const randomGlow = neonColors[Math.floor(Math.random() * neonColors.length)];
+                const card = document.createElement('div');
+                card.className = 'log-card';
+                card.style.borderLeft = `4px solid ${randomGlow}`;
+                card.style.boxShadow = `inset 2px 0 10px ${randomGlow}20`;
+                
+                // Pada elemen Range, ditambahkan event onClick untuk Copy Range
+                card.innerHTML = `
+                    <div class="log-detail">
+                        <div class="log-meta">
+                            <span class="badge" style="border: 1px solid ${randomGlow}; color: ${randomGlow}; text-shadow: 0 0 5px ${randomGlow}80;">
+                                <i class="fa-regular fa-clock"></i> JAM: ${timePart}
+                            </span>
+                            <span class="meta-text">&bull; Global Node</span>
+                        </div>
+                        <div class="log-service">
+                            <span class="service-name">${escapeHTML(displaySid)}</span>
+                            <span class="separator">::</span>
+                            <span class="service-number" onclick="copyToClipboard('${escapeHTML(item.range)}')" title="Salin Range">
+                                ${escapeHTML(item.range)} <i class="fas fa-copy"></i>
+                            </span>
+                        </div>
+                        <div class="log-msg">
+                            <i class="fa-solid fa-arrow-right icon-arrow" style="color: ${randomGlow}"></i>
+                            <span class="msg-text">${escapeHTML(item.message)}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- SISTEM FILTER PENCARIAN LOG ---
+        function filterLogs() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allLogs.filter(log => {
+                let realSid = getRealService(log.sid, log.message).toLowerCase();
+                return realSid.includes(query) ||
+                       (log.range && log.range.toLowerCase().includes(query)) ||
+                       (log.message && log.message.toLowerCase().includes(query));
+            });
+            renderConsoleLogs(filtered.slice(0, 50));
+        }
+
+        // --- SISTEM COUNTDOWN AUTO-REFRESH ---
+        function startTimer() {
+            countdown = 11;
+            document.getElementById('countdownTimer').innerText = `${countdown} s`;
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(async () => {
+                countdown--;
+                document.getElementById('countdownTimer').innerText = `${countdown} s`;
+                
+                if (countdown <= 0) {
+                    fetchConsoleData(); // Ambil log dan update grafik
+                    fetchTopSMSStats(); // Ambil tabel MySQL
+                    countdown = 11;
+                }
+            }, 1000);
+        }
+
+        // INIT SAAT HALAMAN DIMUAT
+        initChart();
+        fetchConsoleData();
+        fetchTopSMSStats();
+        startTimer();
+    </script>
+</body>
+</html>
