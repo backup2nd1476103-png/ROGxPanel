@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Number - Zura Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        /* --- CSS Variabel TEMA DEEP SPACE --- */
+        :root {
+            --bg-dark-blue: #020617;  
+            --bg-deep-purple: #1e1b4b; 
+            --accent-purple: #8b5cf6;  
+            --accent-blue: #3b82f6;    
+            --accent-green: #10b981;
+            --accent-yellow: #fbc02d;
+            --text-light: #f8fafc;     
+            --text-muted: #94a3b8;     
+            
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(139, 92, 246, 0.3);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            --glow-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        
+        body { 
+            background-color: var(--bg-dark-blue);
+            background-image: radial-gradient(ellipse at bottom, var(--bg-deep-purple) 0%, var(--bg-dark-blue) 100%);
+            color: var(--text-light);
+            display: flex; flex-direction: column; min-height: 100vh;
+            overflow-x: hidden; position: relative;
+        }
+
+        .space-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: -1; overflow: hidden;
+        }
+
+        .stars-twinkling {
+            position: absolute; width: 2px; height: 2px; background: transparent;
+            box-shadow: 10vw 15vh #fff, 30vw 45vh #fff, 80vw 10vh #fff, 
+                        55vw 60vh #fff, 90vw 80vh #fff, 15vw 85vh #fff,
+                        40vw 20vh #ddd, 70vw 30vh #ccc, 20vw 70vh #eee;
+            animation: twinkle-light 4s infinite ease-in-out alternate;
+        }
+        .stars-twinkling::after {
+            content: ''; position: absolute; top: 50vh; left: 30vw; width: 3px; height: 3px; background: transparent;
+             box-shadow: 5vw 5vh #fff, 25vw 35vh #ccc, 75vw 5vh #fff, 
+                        50vw 55vh #eee, 85vw 75vh #fff, 10vw 80vh #ddd;
+             animation: twinkle-light 6s infinite ease-in-out alternate-reverse;
+        }
+        @keyframes twinkle-light {
+            0% { opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        .planet {
+            position: absolute; border-radius: 50%;
+            animation: float-planet 10s ease-in-out infinite alternate;
+        }
+        .planet-1 {
+            top: 15%; left: 10%; width: 120px; height: 120px;
+            background: radial-gradient(circle at 30% 30%, var(--accent-purple), var(--bg-deep-purple) 60%, #000 100%); 
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2); opacity: 0.8;
+        }
+        .planet-2 {
+            bottom: 20%; right: 15%; width: 80px; height: 80px;
+            background: radial-gradient(circle at 30% 30%, var(--accent-blue), var(--bg-dark-blue) 60%, #000 100%); 
+            opacity: 0.6; animation-delay: -5s; animation-duration: 12s;
+        }
+        @keyframes float-planet {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-20px); }
+        }
+        
+        .main-nav { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            z-index: 100;
+        }
+
+        @media (min-width: 769px) {
+            .main-nav {
+                position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
+                display: flex; flex-direction: column; gap: 5px; padding: 25px 20px; 
+                border-right: 1px solid var(--glass-border); overflow-y: auto;
+            }
+
+            .sidebar-brand {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                margin-bottom: 25px; text-align: center; width: 100%;
+            }
+            .brand-logo {
+                width: 75px; height: 75px; border-radius: 50%; object-fit: cover;
+                border: 2px solid var(--accent-blue); box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); margin-bottom: 10px;
+            }
+            .brand-title {
+                font-size: 1.5rem; font-weight: 800; letter-spacing: 1px;
+                background: linear-gradient(45deg, #3b82f6, #ffffff);
+                -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2;
+            }
+            .brand-subtitle { font-size: 0.8rem; color: var(--text-muted); text-transform: capitalize; margin-top: 2px; }
+            .nav-label.main-menu { margin-top: 5px; margin-bottom: 10px; }
+
+            .nav-item {
+                display: flex; align-items: center; gap: 15px; padding: 14px 20px;
+                color: var(--text-muted); text-decoration: none; border-radius: 12px;
+                font-weight: 600; font-size: 0.95rem; transition: 0.3s;
+            }
+            .nav-item > i.fas { font-size: 1.2rem; width: 25px; text-align: center; }
+            .nav-item:hover { background: rgba(139, 92, 246, 0.1); color: var(--text-light); }
+            .nav-item.active { 
+                background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); 
+                border-left: 4px solid var(--accent-purple); border-radius: 8px 12px 12px 8px;
+            }
+
+            .nav-other-wrapper { display: flex; flex-direction: column; width: 100%; gap: 5px; }
+            .mobile-other-btn { display: none !important; }
+            .nav-label {
+                font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;
+                margin-top: 25px; margin-bottom: 5px; padding-left: 10px; font-weight: 800; opacity: 0.7;
+            }
+            .other-menu-items { display: flex; flex-direction: column; width: 100%; gap: 5px; }
+            
+            .main-container { margin-left: 260px; padding: 40px 2%; max-width: calc(100% - 260px); flex: 1; }
+            footer { margin-left: 260px; }
+        }
+
+        @media (max-width: 768px) {
+            .desktop-only { display: none !important; }
+
+            .main-nav {
+                position: fixed; top: 15px; left: 0; right: 0; width: 96%; margin: 0 auto;
+                border-radius: 20px; border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
+                display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between;
+                padding: 10px 4px; gap: 2px;
+            }
+
+            .nav-item {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                padding: 8px 2px; color: var(--text-muted); text-decoration: none;
+                font-weight: 600; font-size: clamp(9px, 2.5vw, 13px); flex: 1;
+                white-space: nowrap; border-radius: 12px; gap: 4px; transition: 0.3s;
+            }
+            .nav-item > i.fas { font-size: clamp(14px, 4vw, 18px); }
+            
+            .nav-item.active { color: var(--accent-purple); background: transparent; }
+            .nav-item:hover { color: var(--text-light); background: rgba(139, 92, 246, 0.1); }
+
+            .nav-other-wrapper { position: relative; flex: 1; display: flex; }
+            .nav-label { display: none !important; }
+            
+            .mobile-other-btn { width: 100%; cursor: pointer; }
+            .mobile-other-btn i.fa-chevron-down { font-size: 0.7rem; transition: transform 0.3s; }
+            
+            .nav-other-wrapper:hover .other-menu-items { opacity: 1; visibility: visible; margin-top: 10px; }
+            .nav-other-wrapper:hover .mobile-other-btn i.fa-chevron-down { transform: rotate(180deg); color: var(--accent-purple); }
+
+            .other-menu-items {
+                position: absolute; top: 100%; right: 0; margin-top: 15px;
+                background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+                border: 1px solid var(--glass-border); border-radius: 15px; padding: 10px;
+                box-shadow: var(--glass-shadow); display: flex; flex-direction: column; gap: 5px;
+                min-width: 140px; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 1000;
+            }
+            .other-menu-items::before {
+                content: ''; position: absolute; top: -6px; right: 25px;
+                border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 6px solid var(--glass-border);
+            }
+            
+            .other-menu-items .sub-item {
+                flex-direction: row; justify-content: flex-start; align-items: center; gap: 10px; padding: 10px 15px;
+                font-size: 0.9rem; border-radius: 10px; flex: unset; width: 100%;
+            }
+            .other-menu-items .sub-item > i.fas { font-size: 1rem; width: 20px; text-align: center; }
+            .other-menu-items .sub-item:hover {
+                background: rgba(139, 92, 246, 0.15); border-left: 3px solid var(--accent-purple); padding-left: 18px;
+            }
+
+            .main-container { margin-left: 0; padding: 110px 2% 40px; max-width: 100%; flex: 1; }
+            footer { margin-left: 0; }
+        }
+
+        .main-container { display: flex; flex-direction: column; gap: 20px; z-index: 1; }
+
+        .action-card { 
+            background: var(--glass-bg); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); 
+            padding: 25px 30px; border-radius: 15px; box-shadow: var(--glass-shadow); 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 25px; align-items: start;
+        }
+        
+        .input-label {
+            font-size: 1.1rem; font-weight: 800; color: var(--text-light); 
+            letter-spacing: 0.5px; margin-bottom: 15px; text-align: left;
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .action-col, .server-group, .dropdown-group { 
+            display: flex; flex-direction: column; width: 100%; 
+        }
+
+        .radio-container { display: flex; flex-direction: column; gap: 12px; }
+        .radio-btn {
+            position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
+            background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); padding: 12px;
+            border-radius: 10px; cursor: pointer; transition: 0.3s; color: var(--text-muted);
+            font-weight: bold; overflow: hidden; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .radio-btn input { display: none; }
+        .radio-btn span, .radio-btn i { position: relative; z-index: 1; }
+        .radio-btn input:checked + span { color: white; }
+        .radio-btn:has(input:checked) {
+            border-color: var(--accent-purple); box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+            background: rgba(139, 92, 246, 0.2); color: white;
+        }
+        .radio-btn:hover { background: rgba(139, 92, 246, 0.1); }
+
+        .custom-select {
+            width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border);
+            color: white; padding: 13px 15px; border-radius: 10px; outline: none;
+            font-size: 0.95rem; cursor: pointer; transition: 0.3s; appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="%238b5cf6" viewBox="0 0 16 16"><path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/></svg>');
+            background-repeat: no-repeat; background-position: right 15px center;
+            margin-bottom: 12px; font-weight: 500;
+        }
+        .custom-select:focus { border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); background-color: rgba(0,0,0,0.6); }
+        .custom-select option { background: var(--bg-deep-purple); color: white; }
+
+        .input-box { display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 10px; padding: 12px 15px; transition: 0.3s; width: 100%; margin-bottom: 12px;}
+        .input-box:focus-within { border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); background: rgba(0,0,0,0.6); }
+        .input-box i { color: var(--text-muted); margin-right: 10px; }
+        .input-box input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 1rem; width: 100%; }
+        
+        .btn-get { 
+            width: 100%; justify-content: center; height: 46px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); color: white; border: none; padding: 0 20px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); display: flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 1.05rem;
+        }
+        .btn-get:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(59, 130, 246, 0.6); filter: brightness(1.2); }
+        .btn-get:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .result-container { background: var(--glass-bg); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 15px; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--glass-shadow); }
+        .result-header { background: rgba(0,0,0,0.4); padding: 15px 20px; font-weight: bold; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;}
+        
+        .date-nav { display: flex; justify-content: center; align-items: center; gap: 20px; padding: 15px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--glass-border); }
+        .btn-date { background: transparent; border: none; color: var(--accent-blue); font-size: 1.2rem; cursor: pointer; transition: 0.3s; padding: 5px 10px; border-radius: 6px; }
+        .btn-date:hover:not(:disabled) { background: rgba(59, 130, 246, 0.1); color: var(--accent-purple); }
+        .btn-date:disabled { color: var(--text-muted); cursor: not-allowed; opacity: 0.5; }
+        .date-label { font-weight: 700; width: 120px; text-align: center; color: var(--text-light); }
+
+        .number-list { display: flex; flex-direction: column; min-height: 200px;}
+        .num-item { padding: 18px 20px; border-bottom: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 12px; transition: 0.3s; position: relative; }
+        .num-item:hover { background: rgba(139, 92, 246, 0.05); }
+        
+        .num-grid { display: grid; grid-template-columns: 1.5fr 1fr 0.8fr 35px; align-items: center; gap: 10px; }
+
+        .col-number { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+        .the-number { font-size: 1.15rem; font-weight: 800; color: var(--text-light); letter-spacing: 1px; font-family: 'Consolas', monospace; }
+        
+        .status-badge { padding: 3px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; border: 1px solid transparent; }
+        .s-pending { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
+        .s-success { background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+        .s-failed { background: rgba(239, 68, 68, 0.1); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+
+        .col-geo { display: flex; flex-direction: column; gap: 4px; }
+        .country-text { font-size: 0.9rem; font-weight: 600; color: var(--text-light); }
+        .operator-text { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+
+        .col-time { text-align: right; }
+        .time-badge { display: inline-block; font-size: 0.8rem; color: var(--text-muted); }
+        
+        .col-action { display: flex; justify-content: flex-end; align-items: center; }
+        .btn-delete-num {
+            background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.3s;
+        }
+        .btn-delete-num:hover {
+            background: #ef4444; color: white; border-color: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+        }
+
+        .sms-block { background: rgba(0, 0, 0, 0.5); border-radius: 8px; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid rgba(139, 92, 246, 0.2); flex-wrap: nowrap; }
+        .sms-text { color: var(--text-light); font-size: 0.85rem; font-family: 'Consolas', monospace; word-break: break-word; line-height: 1.4; flex: 1;}
+        .btn-copy-sms { background: var(--accent-blue); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem; transition: 0.3s; display: flex; align-items: center; gap: 6px; flex-shrink: 0; box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
+        .btn-copy-sms:hover { background: var(--accent-purple); transform: translateY(-2px); box-shadow: 0 0 15px rgba(139, 92, 246, 0.6); }
+
+        .pagination { display: flex; justify-content: center; align-items: center; padding: 15px; gap: 15px; background: rgba(0,0,0,0.2); }
+        .btn-page { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; padding: 8px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .btn-page:hover:not(:disabled) { background: rgba(139, 92, 246, 0.2); border-color: var(--accent-purple); }
+        .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
+        .page-info { font-size: 0.9rem; color: var(--text-muted); }
+
+        .stats-footer { background: rgba(0,0,0,0.4); padding: 25px 20px; border-top: 1px solid var(--glass-border); }
+        .stats-top { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-bottom: 20px; gap: 10px; }
+        .price-text { font-size: 0.9rem; color: #fbbf24; font-weight: bold; border: 1px solid rgba(245, 158, 11, 0.3); padding: 5px 15px; border-radius: 8px; background: rgba(245, 158, 11, 0.1); display: inline-flex; align-items: center; gap: 6px; }
+        .perf-text { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        
+        .stats-cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; }
+        .sc-card { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 15px; text-align: center; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 5px; position: relative; overflow: hidden; }
+        .sc-success { border-bottom: 3px solid #10b981; }
+        .sc-failed { border-bottom: 3px solid #ef4444; }
+        .sc-pending { border-bottom: 3px solid #fbc02d; }
+        .sc-title { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; }
+        .sc-val { font-size: 1.6rem; color: var(--text-light); font-weight: 800; }
+        .sc-pct { font-size: 0.85rem; font-weight: 700; }
+        .sc-success .sc-pct { color: #34d399; }
+        .sc-failed .sc-pct { color: #f87171; }
+        
+        .progress-bar-container { width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; overflow: hidden; }
+        .prog-success { background: #10b981; transition: width 0.5s ease; }
+        .prog-failed { background: #ef4444; transition: width 0.5s ease; }
+
+        #toast { position: fixed; bottom: 20px; right: 20px; background: var(--accent-purple); color: white; padding: 12px 20px; border-radius: 8px; font-weight: bold; box-shadow: 0 0 20px rgba(139, 92, 246, 0.6); transform: translateY(100px); opacity: 0; transition: 0.4s; z-index: 9999; border: 1px solid var(--glass-border); }
+        #toast.show { transform: translateY(0); opacity: 1; }
+
+        footer { background: var(--glass-bg); backdrop-filter: blur(15px); padding: 25px; text-align: center; border-top: 1px solid var(--glass-border); margin-top: auto; z-index: 1; }
+        .footer-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px; }
+        .footer-links a { color: var(--accent-blue); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; margin: 0 5px; }
+        .footer-links a:hover { color: var(--accent-purple); }
+        .footer-links span { color: var(--glass-border); }
+
+        @media (max-width: 768px) {
+            .action-card { grid-template-columns: 1fr; gap: 20px; padding: 20px; }
+            .radio-container { flex-direction: row; }
+            .radio-btn { flex: 1; }
+        }
+
+        @media (max-width: 650px) {
+            .input-label { font-size: 1rem; }
+            .input-box, .custom-select { padding: 10px 12px; font-size: 0.9rem; }
+            .btn-get { height: 42px; font-size: 0.95rem; }
+
+            .num-item { padding: 15px; gap: 10px; }
+            .num-grid { grid-template-columns: 1.5fr 1fr 0.8fr 28px; gap: 5px; align-items: center; }
+            .the-number { font-size: 0.85rem; }
+            .status-badge { font-size: 0.55rem; padding: 2px 6px; }
+            .country-text { font-size: 0.75rem; }
+            .operator-text { font-size: 0.65rem; }
+            .time-badge { font-size: 0.65rem; padding: 0; text-align: right; }
+            .btn-delete-num { width: 28px; height: 28px; font-size: 0.8rem; }
+            
+            .sms-block { gap: 8px; padding: 10px; }
+            .sms-text { font-size: 0.7rem; }
+            .btn-copy-sms { padding: 6px 10px; font-size: 0.7rem; }
+
+            .stats-cards-grid { gap: 8px; }
+            .sc-card { padding: 10px; }
+            .sc-val { font-size: 1.3rem; }
+            .sc-title { font-size: 0.65rem; }
+            .sc-pct { font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="space-container">
+        <div class="stars-twinkling"></div>
+        <div class="planet planet-1"></div>
+        <div class="planet planet-2"></div>
+    </div>
+
+    <nav class="main-nav" id="mainNav">
+        
+        <div class="sidebar-brand desktop-only">
+            <img src="../../assets/logo.jpg" alt="ZuraPanel Logo" class="brand-logo">
+            <div class="brand-title">ZuraPanel</div>
+            <div class="brand-subtitle">get a free number</div>
+        </div>
+
+        <div class="nav-label desktop-only main-menu">MAIN MENU</div>
+
+        <a href="../../dashboardz" class="nav-item">
+            <i class="fas fa-home"></i> <span>Dashboard</span>
+        </a>
+        <a href="." class="nav-item active">
+            <i class="fas fa-mobile-screen-button"></i> <span>Get Num</span>
+        </a>
+        <a href="../consol" class="nav-item">
+            <i class="fas fa-terminal"></i> <span>Consol</span>
+        </a>
+
+        <div class="nav-other-wrapper">
+            <div class="nav-item mobile-other-btn">
+                <i class="fas fa-grip"></i> 
+                <span style="display: flex; align-items: center; gap: 4px;">Other <i class="fas fa-chevron-down"></i></span>
+            </div>
+            
+            <div class="nav-label desktop-only">OTHER</div>
+
+            <div class="other-menu-items">
+                <a href="../profil" class="nav-item sub-item">
+                    <i class="fas fa-user-circle"></i> <span>Profil</span>
+                </a>
+                <a href="../payment" class="nav-item sub-item">
+                    <i class="fas fa-wallet"></i> <span>Payment</span>
+                </a>
+                <a href="../../logout" class="nav-item sub-item" style="color: #ef4444;">
+                    <i class="fas fa-sign-out-alt"></i> <span>Log out</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div id="toast"><i class="fas fa-check-circle"></i> Berhasil disalin!</div>
+
+    <main class="main-container">
+
+        <div class="action-card">
+            
+            <div class="server-group" style="display: none;">
+                <div class="input-label"><i class="fas fa-server"></i> Provider API</div>
+                <div class="radio-container">
+                    
+                                        <label class="radio-btn">
+                        <input type="radio" name="server" value="STEX" onchange="switchServer('STEX')" checked> 
+                        <i class="fas fa-bolt"></i> <span>STEX</span>
+                    </label>
+                                    </div>
+            </div>
+
+            <div class="action-col">
+                <div class="input-label"><i class="fas fa-keyboard"></i> Manual / Action</div>
+                <div class="input-box">
+                    <i class="fas fa-satellite-dish"></i>
+                    <input type="text" id="rangeInput" placeholder="Contoh: 23276345XXX" oninput="updateUrlQuery()">
+                </div>
+                <button class="btn-get" id="btnGetNum" onclick="requestNumber()">
+                    <i class="fas fa-sim-card"></i> Get Number
+                </button>
+            </div>
+
+            <div class="dropdown-group">
+                <div class="input-label"><i class="fas fa-filter"></i> Filter Live Access</div>
+                <select id="serviceSelect" class="custom-select" onchange="updateRangeDropdown()">
+                    <option value="">-- Memuat Service... --</option>
+                </select>
+                <select id="rangeSelect" class="custom-select" onchange="fillInput()" style="margin-bottom:0;">
+                    <option value="">Select the service first</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="result-container">
+            <div class="result-header">
+                <span><i class="fas fa-list-ul"></i> Riwayat Nomor</span>
+                <span id="syncIndicator" style="font-size: 0.8rem; color: var(--text-muted);"><i class="fas fa-circle-notch fa-spin"></i> Live Sync (Dual API)</span>
+            </div>
+            
+            <div class="date-nav">
+                <button class="btn-date" id="btnPrevDate" onclick="changeDate(-1)"><i class="fas fa-chevron-left"></i></button>
+                <div class="date-label" id="dateLabel">Today</div>
+                <button class="btn-date" id="btnNextDate" onclick="changeDate(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            <div class="number-list" id="numberList">
+                <div style="padding: 30px; text-align: center; color: var(--text-muted);">Memuat data...</div>
+            </div>
+
+            <div class="pagination">
+                <button class="btn-page" id="btnPrev" onclick="changePage(-1)"><i class="fas fa-chevron-left"></i></button>
+                <div class="page-info">Halaman <span id="currentPage">1</span> dari <span id="totalPages">1</span></div>
+                <button class="btn-page" id="btnNext" onclick="changePage(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            <div class="stats-footer">
+                <div class="stats-top">
+                    <div class="price-text"><i class="fas fa-tag"></i> $0.0030 USD / OTP</div>
+                    <div class="perf-text">Daily Performance Analysis</div>
+                </div>
+                
+                <div class="stats-cards-grid">
+                    <div class="sc-card sc-success">
+                        <div class="sc-title">Success</div>
+                        <div class="sc-val" id="stSuccess">0</div>
+                        <div class="sc-pct" id="pctSuccess">0%</div>
+                    </div>
+                    <div class="sc-card sc-failed">
+                        <div class="sc-title">Failed</div>
+                        <div class="sc-val" id="stFailed">0</div>
+                        <div class="sc-pct" id="pctFailed">0%</div>
+                    </div>
+                    <div class="sc-card sc-pending">
+                        <div class="sc-title">Pending</div>
+                        <div class="sc-val" id="stPending">0</div>
+                        <div class="sc-pct" style="color: var(--text-muted);"><i class="fas fa-clock"></i></div>
+                    </div>
+                </div>
+
+                <div class="progress-bar-container">
+                    <div class="prog-success" id="barSuccess" style="width: 0%;"></div>
+                    <div class="prog-failed" id="barFailed" style="width: 0%;"></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="footer-text">&copy; 2026 ZuraStore - All rights reserved.</div>
+    </footer>
+
+    <script>
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function copyToClipboard(text, isMsg = false) {
+            const tempInput = document.createElement("textarea");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            
+            if(isMsg) showToast("Pesan SMS disalin!");
+            else showToast("Nomor disalin: " + text);
+        }
+
+        function timeAgo(unixTimestamp) {
+            const seconds = Math.floor((Date.now() / 1000) - unixTimestamp);
+            if (seconds < 60) return "Just now";
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes} Min ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours} Hour ago`;
+            const days = Math.floor(hours / 24);
+            return `${days} Day ago`;
+        }
+
+        let currentServer = 'STEX'; 
+        let myNumbers = [];
+        let mySms = [];
+        let liveServicesData = []; 
+        
+        let currentPage = 1;
+        const itemsPerPage = 15; 
+        let dateOffset = 0; 
+
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('prefik')) {
+                document.getElementById('rangeInput').value = urlParams.get('prefik');
+            }
+            updateDateLabel();
+            
+            fetchLiveServices();
+            syncData(); 
+            setInterval(syncData, 8000); // Interval dinaikkan ke 8 detik agar lebih stabil
+        };
+
+        async function deleteNum(orderId) {
+            if (!confirm("Yakin ingin menghapus nomor ini dari riwayat?")) return;
+
+            myNumbers = myNumbers.filter(n => n.id !== orderId);
+            renderList();
+
+            try {
+                const res = await fetch('?ajax=delete_number', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: orderId })
+                });
+                const json = await res.json();
+                
+                if(json.status !== 'success') {
+                    console.error("Gagal menghapus dari database", json.message);
+                }
+            } catch (e) {
+                console.error("Koneksi error saat hapus manual.", e);
+            }
+        }
+
+        function switchServer(serverName) {
+            currentServer = serverName;
+            fetchLiveServices(); 
+        }
+
+        async function fetchLiveServices() {
+            try {
+                const res = await fetch(`?ajax=get_live_services&server=${currentServer}`);
+                const json = await res.json();
+                
+                if (json.meta && json.meta.code === 200 && json.data && json.data.services) {
+                    liveServicesData = json.data.services;
+                    populateServiceDropdown();
+                } else {
+                    document.getElementById('serviceSelect').innerHTML = '<option value="">-- Gagal memuat data --</option>';
+                }
+            } catch(e) {
+                console.log("Error loading live services:", e);
+                document.getElementById('serviceSelect').innerHTML = '<option value="">-- Jaringan Error --</option>';
+            }
+        }
+
+        function populateServiceDropdown() {
+            const sSelect = document.getElementById('serviceSelect');
+            sSelect.innerHTML = `<option value=""> SELECT SERVICE </option>`;
+            
+            liveServicesData.forEach((srv, index) => {
+                const opt = document.createElement('option');
+                opt.value = index; 
+                opt.textContent = srv.sid; 
+                sSelect.appendChild(opt);
+            });
+            updateRangeDropdown(); 
+        }
+
+        function updateRangeDropdown() {
+            const sSelect = document.getElementById('serviceSelect');
+            const rSelect = document.getElementById('rangeSelect');
+            
+            rSelect.innerHTML = '<option value=""> SELECT RANGE </option>';
+            document.getElementById('rangeInput').value = ''; 
+            
+            const selectedIndex = sSelect.value;
+            if (selectedIndex !== "") {
+                const ranges = liveServicesData[selectedIndex].ranges;
+                ranges.forEach(r => {
+                    const opt = document.createElement('option');
+                    opt.value = r;
+                    opt.textContent = r;
+                    rSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function fillInput() {
+            const rSelect = document.getElementById('rangeSelect');
+            if(rSelect.value !== "") {
+                document.getElementById('rangeInput').value = rSelect.value;
+                updateUrlQuery();
+            }
+        }
+
+        function updateUrlQuery() {
+            const val = document.getElementById('rangeInput').value;
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?prefik=' + encodeURIComponent(val);
+            window.history.pushState({path:newUrl}, '', newUrl);
+        }
+
+        function changeDate(step) {
+            dateOffset += step;
+            if (dateOffset > 0) dateOffset = 0;
+            if (dateOffset < -6) dateOffset = -6;
+            
+            currentPage = 1; 
+            updateDateLabel();
+            renderList();
+        }
+
+        function updateDateLabel() {
+            document.getElementById('btnNextDate').disabled = (dateOffset === 0);
+            document.getElementById('btnPrevDate').disabled = (dateOffset === -6);
+            
+            if (dateOffset === 0) {
+                document.getElementById('dateLabel').innerText = "Today";
+            } else if (dateOffset === -1) {
+                document.getElementById('dateLabel').innerText = "Yesterday";
+            } else {
+                const d = new Date(Date.now() + dateOffset * 86400000);
+                document.getElementById('dateLabel').innerText = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            }
+        }
+
+        async function requestNumber() {
+            const range = document.getElementById('rangeInput').value;
+            
+            if(!range) return alert("Masukkan Range dulu!");
+
+            const btn = document.getElementById('btnGetNum');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                const res = await fetch('?ajax=get_number', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ range: range, server: currentServer }) 
+                });
+                const json = await res.json();
+                
+                if(json.status === 'success') {
+                    copyToClipboard(json.data.full_number);
+                    
+                    if (dateOffset !== 0) {
+                        dateOffset = 0;
+                        updateDateLabel();
+                    }
+                    syncData(); 
+                } else {
+                    alert(json.message);
+                }
+            } catch (e) {
+                alert("Koneksi Error. Coba lagi.");
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sim-card"></i> Get Number';
+        }
+
+        async function syncData() {
+            try {
+                const res = await fetch('?ajax=sync_data');
+                const rawText = await res.text();
+                
+                let json;
+                try {
+                    json = JSON.parse(rawText);
+                } catch (parseError) {
+                    console.error("Gagal parse JSON:", rawText);
+                    return;
+                }
+                
+                myNumbers = json.numbers || [];
+                mySms = json.sms || [];
+                
+                renderList();
+            } catch(e) {
+                console.log("Sync error:", e);
+                const container = document.getElementById('numberList');
+                if(container && container.innerHTML.includes('Memuat data...')) {
+                    container.innerHTML = `<div style="padding: 30px; text-align: center; color: #ef4444;">Gagal memuat data dari server.</div>`;
+                }
+            }
+        }
+
+        function renderList() {
+            let displayItems = [];
+            let usedSms = new Set();
+
+            myNumbers.forEach(numObj => {
+                const availableSms = mySms.filter(s => {
+                    const isMatch = (s.number == numObj.full_number || s.number == numObj.number);
+                    const smsHash = s.number + '_' + s.time + '_' + s.otp;
+                    return isMatch && !usedSms.has(smsHash);
+                });
+
+                if (availableSms.length > 0) {
+                    availableSms.forEach(sms => {
+                        const smsHash = sms.number + '_' + sms.time + '_' + sms.otp;
+                        usedSms.add(smsHash);
+                        
+                        displayItems.push({
+                            ...numObj,
+                            display_status: 'success',
+                            display_sms: sms,
+                            sort_time: sms.time 
+                        });
+                    });
+                } else {
+                    displayItems.push({
+                        ...numObj,
+                        display_status: numObj.status === 'success' ? 'failed' : numObj.status, 
+                        display_sms: null,
+                        sort_time: numObj.last_update || numObj.time
+                    });
+                }
+            });
+
+            const now = new Date();
+            const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dateOffset);
+            const startOfDay = Math.floor(targetDate.getTime() / 1000);
+            const endOfDay = startOfDay + 86399;
+
+            let filteredItems = displayItems.filter(item => item.sort_time >= startOfDay && item.sort_time <= endOfDay);
+            filteredItems.sort((a, b) => b.sort_time - a.sort_time);
+
+            let sCount = filteredItems.filter(n => n.display_status === 'success').length;
+            let fCount = filteredItems.filter(n => n.display_status === 'failed').length;
+            let pCount = filteredItems.filter(n => n.display_status === 'pending').length;
+            
+            let totalFinished = sCount + fCount; 
+            let totalAll = sCount + fCount + pCount;
+
+            let sPct = totalFinished > 0 ? ((sCount / totalFinished) * 100).toFixed(1) : 0;
+            let fPct = totalFinished > 0 ? ((fCount / totalFinished) * 100).toFixed(1) : 0;
+
+            document.getElementById('stSuccess').innerText = sCount;
+            document.getElementById('stFailed').innerText = fCount;
+            document.getElementById('stPending').innerText = pCount;
+
+            document.getElementById('pctSuccess').innerText = sPct + '%';
+            document.getElementById('pctFailed').innerText = fPct + '%';
+
+            document.getElementById('barSuccess').style.width = (totalAll > 0 ? (sCount/totalAll)*100 : 0) + '%';
+            document.getElementById('barFailed').style.width = (totalAll > 0 ? (fCount/totalAll)*100 : 0) + '%';
+
+            const totalItems = filteredItems.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            
+            if(currentPage > totalPages) currentPage = totalPages;
+            
+            document.getElementById('currentPage').innerText = currentPage;
+            document.getElementById('totalPages').innerText = totalPages;
+            document.getElementById('btnPrev').disabled = (currentPage === 1);
+            document.getElementById('btnNext').disabled = (currentPage === totalPages);
+
+            const container = document.getElementById('numberList');
+            container.innerHTML = '';
+
+            if(totalItems === 0) {
+                container.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">Tidak ada aktivitas pada tanggal ini.</div>';
+                return;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginatedData = filteredItems.slice(startIndex, startIndex + itemsPerPage);
+
+            paginatedData.forEach(item => {
+                const timeAgoText = timeAgo(item.sort_time);
+                
+                let smsHtml = '';
+                let statusClass = 's-pending';
+                let statusText = 'PENDING';
+                
+                if (item.display_status === 'success') {
+                    statusClass = 's-success'; 
+                    statusText = 'SUCCESS';
+                    
+                    const cleanSmsText = item.display_sms.otp.replace(/[\r\n]+/g, ' '); 
+                    
+                    let isWaFlag = item.display_sms.is_wa ? true : false;
+                    let waBadgeHtml = isWaFlag ? `<span style="color: #f87171; font-size: 0.65rem; font-weight: bold; padding-right: 10px; border-right: 1px solid rgba(255,255,255,0.1); margin-right: 10px;">[N/A BAL]</span>` : ``;
+
+                    smsHtml = `
+                    <div class="sms-block">
+                        <div class="sms-text">${item.display_sms.otp}</div>
+                        <div style="display:flex; align-items:center;">
+                            ${waBadgeHtml}
+                            <button class="btn-copy-sms" onclick="copyToClipboard('${cleanSmsText}', true)">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>`;
+
+                } else if (item.display_status === 'failed') {
+                    statusClass = 's-failed'; 
+                    statusText = 'FAILED';
+                }
+
+                const ctry = item.country || 'Unknown';
+                const opr = item.operator || 'Other';
+
+                const div = document.createElement('div');
+                div.className = 'num-item';
+                div.innerHTML = `
+                    <div class="num-grid">
+                        <div class="col-number">
+                            <div class="the-number">${item.full_number}</div>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                        
+                        <div class="col-geo">
+                            <div class="country-text">${ctry}</div>
+                            <div class="operator-text"><i class="fas fa-signal"></i> ${opr}</div>
+                        </div>
+
+                        <div class="col-time">
+                            <div class="time-badge">${timeAgoText}</div>
+                        </div>
+
+                        <div class="col-action">
+                            <button class="btn-delete-num" onclick="deleteNum('${item.id}')" title="Hapus Manual">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    ${smsHtml}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function changePage(step) {
+            currentPage += step;
+            renderList();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
